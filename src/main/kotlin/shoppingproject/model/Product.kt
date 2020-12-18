@@ -4,7 +4,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperFieldModel
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTyped
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Product(
     val name: String,
     @DynamoDBTyped(DynamoDBMapperFieldModel.DynamoDBAttributeType.S) val type: ProductType,

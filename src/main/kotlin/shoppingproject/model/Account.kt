@@ -1,17 +1,15 @@
 package shoppingproject.model
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
 import shoppingproject.utils.Patterns.emailRegex
+import kotlinx.serialization.Serializable
 
-@DynamoDBTable(tableName = "jussi-account")
+@Serializable
 data class Account(val name: String, val email: String) {
 
     init {
         validateName(name)
         validateEmail(email)
     }
-
-
 }
 
 fun validateEmail(email: String) {

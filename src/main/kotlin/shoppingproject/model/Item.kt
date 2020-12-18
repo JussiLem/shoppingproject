@@ -1,5 +1,8 @@
 package shoppingproject.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Item(val product: Product, var quantity: Int) {
     constructor(quantity: Int, product: Product) : this(product, quantity)
 

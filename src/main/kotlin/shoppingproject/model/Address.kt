@@ -1,5 +1,8 @@
 package shoppingproject.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Address(
     val country: String,
     val streetAddress: String,

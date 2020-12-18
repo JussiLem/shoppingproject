@@ -4,6 +4,9 @@ import shoppingproject.model.ProductType.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Parcel(
     val items: List<Item>,
     val shippingAddress: Address,

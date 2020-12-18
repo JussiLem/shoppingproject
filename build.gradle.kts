@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.4.10"
+    kotlin("plugin.serialization") version "1.4.10"
     application
 }
 
@@ -24,8 +25,8 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     implementation(kotlin("stdlib-jdk8"))
     implementation(ktor("server-cio"))
-    implementation(ktor("html-builder"))
-    implementation(ktor("jackson"))
+    implementation(ktor("serialization"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")

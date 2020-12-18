@@ -4,46 +4,20 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.html.respondHtml
 import io.ktor.http.*
-import io.ktor.jackson.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.*
-import kotlinx.html.*
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import shoppingproject.dynamodb.batch.DynamoBatchExecutor
-import shoppingproject.dynamodb.dsl.*
 import shoppingproject.mappers.AccountMapper
 import shoppingproject.mappers.PriceMapper
 import shoppingproject.model.Account
 import shoppingproject.model.Product
-import shoppingproject.model.validateEmail
-import shoppingproject.model.validateName
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.IllegalArgumentException
-import com.amazonaws.services.dynamodbv2.document.ItemUtils
-
-
-fun HTML.index() {
-    head {
-        title("Hello from Ktor!")
-    }
-    body {
-        div {
-            +"Hello from Ktor"
-        }
-    }
-}
-
-object MyLogger {
-    val logger: Logger = LoggerFactory.getLogger(this::class.java)
-}
+import io.ktor.serialization.*
 
 @ExperimentalCoroutinesApi
 val myContext = newSingleThreadContext("MyOwnThread")
@@ -63,12 +37,13 @@ fun Application.module() {
         exception<InvalidCredentialsException> { exception ->
             call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
         }
+        exception<Throwable> {
+            call.respond(HttpStatusCode.InternalServerError)
+        }
     }
 
     install(ContentNegotiation) {
-        jackson {
-            enable(SerializationFeature.INDENT_OUTPUT) // Pretty Prints the JSON
-        }
+        json()
     }
 
     install(CallId) {
@@ -79,8 +54,9 @@ fun Application.module() {
 
     routing {
 
-        get("/") {
-            call.respondHtml(HttpStatusCode.OK, HTML::index)
+        get("/health_check") {
+            // Check databases/other services.
+            call.respondText("OK")
         }
 
         get("/account") {
@@ -136,38 +112,3 @@ fun dynamoDb(): AmazonDynamoDB {
 private val lastIncrement = AtomicLong()
 private fun newRequestId(): String = "shoppingproject-id-${lastIncrement.incrementAndGet()}"
 
-private suspend fun ApplicationCall.respondAccountQuery() {
-    try {
-        val name: String? = request.queryParameters["name"]
-        val email: String? = request.queryParameters["email"]
-        validateName(name!!)
-        validateEmail(email!!)
-        val amazonDynamoDB: AmazonDynamoDB = dynamoDb()
-        val result = DynamoDSL(amazonDynamoDB).query("jussi-account") {
-            hashKey("name") {
-                eq(name)
-            }
-            sortKey("email") {
-                eq(email)
-            }
-        }
-        while (result.hasNext()) {
-            application.log.info(ItemUtils.toItem(result.next()).toJSON())
-        }
-
-
-
-
-
-    } catch (e: IllegalArgumentException) {
-        application.log.error("Error while parsing parameters", e)
-        respond(
-            HttpStatusCode.BadRequest,
-            mapOf(
-                "ResponseCode" to HttpStatusCode.BadRequest.value,
-                "ValidationError" to e.message.toString(),
-                "CallId" to callId.toString()
-            )
-        )
-    }
-}
