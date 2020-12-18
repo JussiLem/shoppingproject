@@ -11,7 +11,8 @@ class QueryIterator(
     private val tableName: String,
     private val hash: HashKey,
     private val sort: SortKey?,
-    private val filtering: RootFilter?): Iterator<Map<String, AttributeValue>>{ //Make it generic
+    private val filtering: RootFilter?
+) : Iterator<Map<String, AttributeValue>> { //Make it generic
 
     var lastEvaluatedKey: Map<String, AttributeValue> = emptyMap()
     private val results: MutableList<Map<String, AttributeValue>> = mutableListOf()
@@ -23,51 +24,54 @@ class QueryIterator(
     }
 
     override fun next(): Map<String, AttributeValue> {
-        if(index >= results.size && lastEvaluatedKey.isNotEmpty()){
+        if (index >= results.size && lastEvaluatedKey.isNotEmpty()) {
             query()
             return next()
         }
-        if(index >= results.size){
+        if (index >= results.size) {
             throw RuntimeException("No more elements")
-        }
-        else{
+        } else {
             val toReturn = results[index]
             index++
             return toReturn
         }
     }
 
-    fun query(){
+    fun query() {
 
         val request = QueryRequest()
         request.withTableName(tableName)
 
-        if(sort == null){
+        if (sort == null) {
             request.withKeyConditions(mapOf(Pair(hash.keyName, hash.equals.toCondition())))
-        }
-        else{
-            request.withKeyConditions(mapOf(Pair(hash.keyName, hash.equals.toCondition()), Pair(sort.sortKeyName, sort.comparisonOperator.toCondition())))
+        } else {
+            request.withKeyConditions(
+                mapOf(
+                    Pair(hash.keyName, hash.equals.toCondition()),
+                    Pair(sort.sortKeyName, sort.comparisonOperator.toCondition())
+                )
+            )
         }
 
-        if(filtering != null) {
+        if (filtering != null) {
             val props = filtering.getFilterRequestProperties()
 
             request.withFilterExpression(props.filterExpression)
-            if(props.expressionAttributeNames.isNotEmpty()){
+            if (props.expressionAttributeNames.isNotEmpty()) {
                 request.withExpressionAttributeNames(props.expressionAttributeNames)
             }
-            if(props.expressionAttributeValues.isNotEmpty()){
+            if (props.expressionAttributeValues.isNotEmpty()) {
                 request.withExpressionAttributeValues(props.expressionAttributeValues)
             }
         }
 
-        //Returns last evaulated key
+        //Returns last evaluated key
         val result: QueryResult = dynamoDB.query(request)
 
         results.addAll(result.items)
-        lastEvaluatedKey = if(result.lastEvaluatedKey == null){
+        lastEvaluatedKey = if (result.lastEvaluatedKey == null) {
             emptyMap()
-        } else{
+        } else {
             result.lastEvaluatedKey
         }
 

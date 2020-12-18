@@ -8,10 +8,10 @@ class QueryIteratorBuilder(val dynamoDB: AmazonDynamoDB) {
     lateinit var tableName: String
     lateinit var hashkey: HashKey
     lateinit var sortKey: SortKey
-    lateinit var filtering: RootFilter
+    var filtering: RootFilter? = null
 
     fun build(): QueryIterator  {
-        return QueryIterator(dynamoDB, tableName!!, hashkey!!, sortKey, filtering)
+        return QueryIterator(dynamoDB, tableName, hashkey, sortKey, filtering)
     }
 }
 

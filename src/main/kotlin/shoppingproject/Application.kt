@@ -17,7 +17,6 @@ import kotlinx.coroutines.*
 import kotlinx.html.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.slf4j.event.Level
 import shoppingproject.dynamodb.batch.DynamoBatchExecutor
 import shoppingproject.dynamodb.dsl.*
 import shoppingproject.mappers.AccountMapper
@@ -28,7 +27,8 @@ import shoppingproject.model.validateEmail
 import shoppingproject.model.validateName
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.IllegalArgumentException
-import kotlin.system.measureTimeMillis
+import com.amazonaws.services.dynamodbv2.document.ItemUtils
+
 
 fun HTML.index() {
     head {
@@ -142,7 +142,8 @@ private suspend fun ApplicationCall.respondAccountQuery() {
         val email: String? = request.queryParameters["email"]
         validateName(name!!)
         validateEmail(email!!)
-        val result = DynamoDSL().query("jussi-account") {
+        val amazonDynamoDB: AmazonDynamoDB = dynamoDb()
+        val result = DynamoDSL(amazonDynamoDB).query("jussi-account") {
             hashKey("name") {
                 eq(name)
             }
@@ -150,10 +151,14 @@ private suspend fun ApplicationCall.respondAccountQuery() {
                 eq(email)
             }
         }
-
         while (result.hasNext()) {
-            application.log.info(result.next().toString())
+            application.log.info(ItemUtils.toItem(result.next()).toJSON())
         }
+
+
+
+
+
     } catch (e: IllegalArgumentException) {
         application.log.error("Error while parsing parameters", e)
         respond(
@@ -165,5 +170,4 @@ private suspend fun ApplicationCall.respondAccountQuery() {
             )
         )
     }
-
 }
