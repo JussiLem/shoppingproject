@@ -88,39 +88,6 @@ fun Application.module() {
                 call.respondAccountQuery()
             }
             deferred.await()
-
-            /*
-            async(myContext) {
-                try {
-                    val name: String? = call.request.queryParameters["name"]
-                    val email: String? = call.request.queryParameters["email"]
-                    validateName(name!!)
-                    validateEmail(email!!)
-                    val result = DynamoDSL().query("jussi-account") {
-                        hashKey("name") {
-                            eq(name)
-                        }
-                        sortKey("email") {
-                            eq(email)
-                        }
-                    }
-
-                    while (result.hasNext()) {
-                        application.log.info(result.next().toString())
-                    }
-                } catch (e: IllegalArgumentException) {
-                    application.log.error("Error while parsing parameters", e)
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        mapOf(
-                            "ResponseCode" to HttpStatusCode.BadRequest.value,
-                            "ValidationError" to e.message.toString(),
-                            "CallId" to call.callId.toString()
-                        )
-                    )
-                }
-            }
-            */
         }
 
         post("/account") {
