@@ -18,6 +18,7 @@ import shoppingproject.model.Account
 import shoppingproject.model.Product
 import java.util.concurrent.atomic.AtomicLong
 import io.ktor.serialization.*
+import shoppingproject.health.Health
 
 @ExperimentalCoroutinesApi
 val myContext = newSingleThreadContext("MyOwnThread")
@@ -46,6 +47,8 @@ fun Application.module() {
         json()
     }
 
+    install(Health)
+
     install(CallId) {
         retrieveFromHeader(HttpHeaders.XRequestId)
         generate { newRequestId() }
@@ -53,12 +56,6 @@ fun Application.module() {
     }
 
     routing {
-
-        get("/health_check") {
-            // Check databases/other services.
-            call.respondText("OK")
-        }
-
         get("/account") {
             val deferred = async(myContext) {
                 call.respondAccountQuery()
