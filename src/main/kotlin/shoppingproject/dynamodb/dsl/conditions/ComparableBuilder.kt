@@ -1,0 +1,3 @@
+package shoppingproject.dynamodb.dsl.conditions
+
+interface ComparableBuilder
