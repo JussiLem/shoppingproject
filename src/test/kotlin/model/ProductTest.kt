@@ -24,7 +24,7 @@ class ProductTest {
     @Test
     fun `when price has more than 2 digits, round up`() {
         val product = Product("product", ProductType.PHYSICAL, 1.965)
-        assertThat(product.price.toPlainString()).isEqualTo("1.97")
+        assertThat(product.priceInBigDecimal.toPlainString()).isEqualTo("1.97")
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.model.AttributeValue
 import com.amazonaws.services.dynamodbv2.model.QueryRequest
 import com.amazonaws.services.dynamodbv2.model.QueryResult
+import shoppingproject.ShoppingProjectException
 import shoppingproject.dynamodb.dsl.filters.RootFilter
 
 class QueryIterator(
@@ -29,7 +30,7 @@ class QueryIterator(
             return next()
         }
         if (index >= results.size) {
-            throw RuntimeException("No more elements")
+            throw ShoppingProjectException("No more elements")
         } else {
             val toReturn = results[index]
             index++

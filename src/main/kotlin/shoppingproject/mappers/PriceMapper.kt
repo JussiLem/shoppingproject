@@ -9,7 +9,7 @@ class PriceMapper : DynamoMapper<Product> {
         return mapOf(
             Pair("name", AttributeValue(product.name)),
             Pair("type", AttributeValue().withS(product.type.toString())),
-            Pair("price", AttributeValue().withN(product.price.toString())),
+            Pair("price", AttributeValue().withN(product.priceInBigDecimal.toString())),
         )
     }
 }

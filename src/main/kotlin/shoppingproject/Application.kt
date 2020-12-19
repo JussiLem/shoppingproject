@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicLong
 import io.ktor.serialization.*
 import io.ktor.util.pipeline.*
 import shoppingproject.health.Health
+import shoppingproject.query.productQuery
+import shoppingproject.query.respondAccountQuery
 
 @ExperimentalCoroutinesApi
 val myContext = newSingleThreadContext("MyOwnThread")
@@ -64,6 +66,13 @@ fun Application.module() {
             deferred.await()
         }
 
+        get("/product") {
+            val deferred = async(myContext) {
+                call.productQuery()
+            }
+            deferred.await()
+        }
+
         post("/account") {
             try {
                 val post = call.receive<Account>()
@@ -71,7 +80,8 @@ fun Application.module() {
                 val amazonDynamoDB: AmazonDynamoDB = dynamoDb()
                 val dynamoBatch: DynamoBatchExecutor<Account> = DynamoBatchExecutor(amazonDynamoDB)
                 dynamoBatch.persist(listOf(Account(post.name, post.email)), AccountMapper(), "jussi-account")
-                call.respond(mapOf("OK" to true))
+                call.respond(
+                    mapOf("OK" to true))
             } catch (e: Exception) {
                 application.log.error("Failed to register account", e)
                 genericBadRequest(e)
@@ -85,13 +95,12 @@ fun Application.module() {
                 val dynamoBatch: DynamoBatchExecutor<Product> = DynamoBatchExecutor(amazonDynamoDB)
 
                 dynamoBatch.persist(
-                    listOf(Product(product.name, product.type, product._price)),
+                    listOf(Product(product.name, product.type, product.price)),
                     PriceMapper(),
                     "jussi-product"
                 )
                 call.respond(
-                    HttpStatusCode.OK,
-                    call.respond(mapOf("OK" to true))
+                    mapOf("OK" to true)
                 )
             } catch (e: Exception) {
                 application.log.error("Failed to save new product", e)

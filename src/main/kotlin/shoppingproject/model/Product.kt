@@ -10,12 +10,12 @@ import kotlinx.serialization.Serializable
 data class Product(
     val name: String,
     @DynamoDBTyped(DynamoDBMapperFieldModel.DynamoDBAttributeType.S) val type: ProductType,
-    val _price: Double) {
-    val price: BigDecimal by lazy { BigDecimal(_price).setScale(2, RoundingMode.HALF_UP) }
+    @DynamoDBTyped(DynamoDBMapperFieldModel.DynamoDBAttributeType.N) val price: Double) {
+    val priceInBigDecimal: BigDecimal by lazy { BigDecimal(price).setScale(2, RoundingMode.HALF_UP) }
 
     init {
         require(name.isNotBlank()) { "Product name must not be blank" }
-        require(_price > 0.0) { "Produce price must be greaterThan 0" }
+        require(price > 0.0) { "Produce price must be greaterThan 0" }
     }
 
     override fun equals(other: Any?): Boolean =
