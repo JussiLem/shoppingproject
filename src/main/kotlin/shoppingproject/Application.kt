@@ -18,6 +18,7 @@ import shoppingproject.model.Account
 import shoppingproject.model.Product
 import java.util.concurrent.atomic.AtomicLong
 import io.ktor.serialization.*
+import io.ktor.util.pipeline.*
 import shoppingproject.health.Health
 
 @ExperimentalCoroutinesApi
@@ -73,7 +74,7 @@ fun Application.module() {
                 call.respond(mapOf("OK" to true))
             } catch (e: Exception) {
                 application.log.error("Failed to register account", e)
-                call.respond(HttpStatusCode.BadRequest, "Problem creating Account")
+                genericBadRequest(e)
             }
         }
         post("/product") {
@@ -88,14 +89,29 @@ fun Application.module() {
                     PriceMapper(),
                     "jussi-product"
                 )
-                call.respond(mapOf("OK" to true))
+                call.respond(
+                    HttpStatusCode.OK,
+                    call.respond(mapOf("OK" to true))
+                )
             } catch (e: Exception) {
-                application.log.error("Failed to register account", e)
-                call.respond(HttpStatusCode.BadRequest, "Problem creating Account")
+                application.log.error("Failed to save new product", e)
+                genericBadRequest(e)
             }
         }
     }
 
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.genericBadRequest(
+    e: Exception
+) {
+    call.respond(
+        HttpStatusCode.BadRequest,
+        mapOf(
+            "ValidationError" to e.message.toString(),
+            "CallId" to call.callId.toString()
+        )
+    )
 }
 
 fun main(args: Array<String>): Unit = io.ktor.server.cio.EngineMain.main(args)

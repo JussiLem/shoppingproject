@@ -50,7 +50,6 @@ suspend fun ApplicationCall.respondAccountQuery() {
         respond(
             HttpStatusCode.BadRequest,
             mapOf(
-                "ResponseCode" to HttpStatusCode.BadRequest.value,
                 "ValidationError" to e.message.toString(),
                 "CallId" to callId.toString()
             )
