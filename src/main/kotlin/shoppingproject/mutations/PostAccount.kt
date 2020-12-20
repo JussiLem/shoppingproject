@@ -14,12 +14,12 @@ import shoppingproject.utils.genericBadRequest
 
 suspend fun PipelineContext<Unit, ApplicationCall>.postAccount() {
     try {
-        val post = call.receive<Account>()
-        application.log.debug("Account received", post.toString())
+        val account = call.receive<Account>()
+        application.log.debug("Account received", account.toString())
         val amazonDynamoDB: AmazonDynamoDB = dynamoDb()
         val dynamoBatch: DynamoBatchExecutor<Account> = DynamoBatchExecutor(amazonDynamoDB)
         dynamoBatch.persist(
-            listOf(Account(post.name, post.email)),
+            listOf(Account(account.name, account.email, account.userGroup)),
             AccountMapper(),
             "jussi-account")
         call.respond(

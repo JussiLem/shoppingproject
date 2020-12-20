@@ -20,7 +20,14 @@ class PhysicalOrderTest {
     private val paymentMethod: PaymentMethod by lazy {
         CreditCard("JOHN DOE", "123.456.789-00", 123, YearMonth.of(2027, 11), billingAddress)
     }
-    private val account by lazy { Account("John Doe", "john.doe@domain.suffix") }
+    private val account by lazy { Account("John Doe", "john.doe@domain.suffix",
+        UserGroup(
+            "testGroup",
+            Role(
+                "TestRole",
+                listOf(Privilege.READ)
+            )
+        )) }
     private val shippingAddress = billingAddress
 
     private lateinit var physicalItems: List<Item>

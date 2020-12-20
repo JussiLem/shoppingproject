@@ -4,19 +4,11 @@ import shoppingproject.utils.Patterns.emailRegex
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Account(val name: String, val email: String) {
+data class Account(val name: String, val email: String, val userGroup: UserGroup) {
 
     init {
-        validateName(name)
-        validateEmail(email)
+        require(emailRegex.matcher(email).matches()) { "Invalid email address" }
+        require(name.isNotBlank()) { "Name cannot be blank" }
+        require(userGroup.toString().isNotBlank()) { "user group cannot be blank" }
     }
-}
-
-fun validateEmail(email: String) {
-    require(emailRegex.matcher(email).matches()) { "Invalid email address" }
-
-}
-
-fun validateName(name: String) {
-    require(name.isNotBlank()) { "Name cannot be blank" }
 }

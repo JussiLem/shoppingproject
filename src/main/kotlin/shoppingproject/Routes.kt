@@ -7,6 +7,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.newSingleThreadContext
 import shoppingproject.mutations.postAccount
 import shoppingproject.mutations.postProduct
+import shoppingproject.mutations.postRole
 import shoppingproject.query.productQuery
 import shoppingproject.query.respondAccountQuery
 
@@ -37,6 +38,13 @@ fun Routing.generateRoutes() {
     post("/product") {
         val deferred = async(myContext) {
             postProduct()
+        }
+        deferred.await()
+    }
+
+    post("/role") {
+        val deferred = async(myContext) {
+            postRole()
         }
         deferred.await()
     }

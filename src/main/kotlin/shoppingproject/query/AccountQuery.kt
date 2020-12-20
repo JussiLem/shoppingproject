@@ -20,15 +20,18 @@ suspend fun ApplicationCall.respondAccountQuery() {
     try {
         val name: String? = request.queryParameters["name"]
         val email: String? = request.queryParameters["email"]
-        val account = Account(name!!, email!!)
+        val userGroup: String? = request.queryParameters["userGroup"]
+        require(userGroup!!.isNotBlank())
+        require(name!!.isNotBlank())
+        require(email!!.isNotBlank())
         val amazonDynamoDB: AmazonDynamoDB = dynamoDb()
 
         val result = DynamoDSL(amazonDynamoDB).query("jussi-account") {
             hashKey("name") {
-                eq(account.name)
+                eq(name)
             }
             sortKey("email") {
-                eq(account.email)
+                eq(email)
             }
         }
 
