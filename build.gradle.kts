@@ -32,6 +32,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
     implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("net.logstash.logback:logstash-logback-encoder:6.5")
     implementation("com.amazonaws:aws-java-sdk-dynamodb:1.11.919")
     implementation("io.reactivex.rxjava2:rxkotlin:2.4.0")
 
